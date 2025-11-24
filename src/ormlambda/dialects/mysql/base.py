@@ -443,7 +443,12 @@ class MySQLCompiler(compiler.SQLCompiler):
 
         set_query: str = ",".join(["=".join(col_data) for col_data in col_names])
 
-        query = f"UPDATE {update.table.__table_name__} SET {set_query}"
+        if db_name := update.table.__db_name__:
+            new_table= f"{db_name}.{update.table.__table_name__}"
+        else:
+            new_table = update.table.__table_name__
+            
+        query = f"UPDATE {new_table} SET {set_query}"
 
         if update.where.comparers:
             where_string = update.where.compile(self.dialect).string
